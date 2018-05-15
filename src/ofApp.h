@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #define NUM_BYTES 4 // Bytes to read
+#define NUM_OBSTACLES 30
 
 class ofApp : public ofBaseApp{
 
@@ -12,6 +13,7 @@ class ofApp : public ofBaseApp{
 		void draw();
 
 		//map functions
+		void setupMap();
 		//void updateMap();
         void drawMap();
 
@@ -26,8 +28,10 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 	private:
-		int             buttonValue, potentiometerMeanValue;
-		bool            sendSerialMessage;
-		int             countCycles;
-		ofSerial        serial;
+	    vector<obstacle> obstacles;
+	    float            speed;
+		int              buttonValue, potentiometerMeanValue;
+		bool             sendSerialMessage;
+		int              countCycles;
+		ofSerial         serial;
 };

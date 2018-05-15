@@ -4,6 +4,12 @@
 // My idea is to have a "player" class in a separate file.
 // In this case, from here we should only have to trigger the right player's functions.
 
+struct obstacle {
+    float height;
+    int row;    //1,2,3,4
+    bool isPerson;
+};
+
 //--------------------------------------------------------------
 void ofApp::setup() {
 
@@ -19,6 +25,15 @@ void ofApp::setup() {
 
 	countCycles = 0;
 
+	setupMap();
+
+}
+
+void ofApp::setupMap() {/*
+    float currentHeight = -ofGetHeight();
+    for(int i=0; i<NUM_OBSTACLES; i++) {
+        obstacles.push_back(obstacle(currentHeight,)) //need to find integer value randomizer
+    }*/
 }
 
 //--------------------------------------------------------------
