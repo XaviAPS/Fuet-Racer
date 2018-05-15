@@ -1,11 +1,15 @@
 #include "ofApp.h"
 
+// In this file we retrieve all inputs from arduino.
+// My idea is to have a "player" class in a separate file.
+// In this case, from here we should only have to trigger the right player's functions.
+
 //--------------------------------------------------------------
 void ofApp::setup() {
 
 	ofSetFrameRate(60);
 
-	ofSetWindowPosition(0, 0);
+	ofSetWindowPosition(75, 100);
 
 	ofBackground(0);
 	sendSerialMessage = false; //Variable to control the interval at which you read information from the Arduino
@@ -19,7 +23,7 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
-
+/*
 	if (sendSerialMessage)
 	{
 		serial.writeByte('x'); //Send something to the Arduino to wake it up
@@ -53,25 +57,23 @@ void ofApp::update() {
 		sendSerialMessage = true;
 		countCycles = 0;
 	}
+*/
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	int iRadius = 1;
+
+    ofBackground(0);
+    drawMap();
+/*
+    //original example
+    int iRadius = 1;
 	char tempStr[1024];
 
-	//Display value from the arduino received
-	ofSetColor(255);
-	sprintf(tempStr, "The serial value received is %i", buttonValue);
-	ofDrawBitmapString(tempStr, 50, 100);
-
-
 	float fRand = 0;
-	int   iWidth = ofGetWidth();
-
-	for (int i = 0; i<iWidth + 1; i++)
+	for (int i = 0; i<ofGetWidth() + 1; i++)
 	{
-		//If the button is pressed we randomize colort and make points bigger
+		//If the button is pressed we randomize color and make points bigger
 		if (buttonValue)
 		{
 			iRadius = 5;
@@ -84,7 +86,26 @@ void ofApp::draw() {
 		ofCircle(i, ((ofGetHeight() / 2) + ofRandom(-fRand, fRand)), iRadius);
 		fRand += ofMap(potentiometerMeanValue, 0, 1023, 0, 0.2);
 	}
+*/
+}
 
+void ofApp::drawMap() {
+    ofSetColor(255);
+
+	int iWidth = ofGetWidth();
+	int iHeight = ofGetHeight();
+	int roadlineWidth = 2;
+
+    //we draw borders
+    ofRect(0, 0, iWidth/10, iHeight);
+    ofRect(iWidth-(iWidth/10), 0, iWidth/10, iHeight);
+    if(0.002*iWidth > 2) roadlineWidth = 0.002*iWidth;
+
+    for(int i=1; i<4; i++) {
+        for(int j=0; j<iHeight; j++) {
+             ofCircle((iWidth/10) + (i*iWidth*0.2), j, roadlineWidth);
+        }
+    }
 }
 
 //--------------------------------------------------------------
