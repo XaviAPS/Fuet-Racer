@@ -2,6 +2,10 @@
 /bin
 /obj
 
+# Xcode/Mac files
+*.DS_Store
+*.xcuserstate
+
 # Prerequisites
 *.d
 
