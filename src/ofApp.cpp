@@ -19,6 +19,8 @@ void ofApp::setup() {
 
 	countCycles = 0;
 
+    previousTime = clock();
+    speed = 0.2;
 	setupMap();
     setupPlayer();
 
@@ -30,15 +32,28 @@ void ofApp::setupPlayer() {
     player.draw();
 }
 
-void ofApp::setupMap() {/*
-    float currentHeight = -ofGetHeight();
+void ofApp::setupMap() {
+    srand(time(NULL));
+    float currentHeight = -300;
     for(int i=0; i<NUM_OBSTACLES; i++) {
-        obstacles.push_back(obstacle(currentHeight,)) //need to find integer value randomizer
-    }*/
+        obstacle obst;
+        obst.height = currentHeight;
+        obst.lane = (rand()%4)+1;
+        obst.isPerson = false;
+        obstacles.push_back(obst);
+        currentHeight-=((rand()%300)+200);
+        //cout<<currentHeight<<endl;
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
+
+    clock_t currentTime = clock();
+    elapsed_secs = double(currentTime - previousTime);
+    //cout<<"t"<<elapsed_secs<<endl;
+    updateMap();
+    previousTime = clock();
 /*
 	if (sendSerialMessage)
 	{
@@ -76,13 +91,37 @@ void ofApp::update() {
 */
 }
 
+void ofApp::updateMap() {
+    int i,j=0;
+    vector<obstacle>::iterator it;
+    for(it = obstacles.begin(); it != obstacles.end(); ) {
+        it->height+=(elapsed_secs*speed);
+        if(it->height>0) {
+            obstacle aux;
+            aux.height = it->height;
+            aux.lane = it->lane;
+            aux.isPerson = it->isPerson;
+            onScreenObstacles.push_back(aux);
+            it = obstacles.erase(it);
+        }
+        else it++;
+    }
+    for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
+        if(it->height>ofGetHeight()) it = onScreenObstacles.erase(it);
+        else {
+            it->height+=(elapsed_secs*speed);
+            it++;
+        }
+    }
+}
+
 //--------------------------------------------------------------
 void ofApp::draw() {
 
     ofBackground(0);
     drawMap();
-    player.draw();
-    
+    //player.draw();
+
 /*
     //original example
     int iRadius = 1;
@@ -124,6 +163,21 @@ void ofApp::drawMap() {
              ofCircle((iWidth/10) + (i*iWidth*0.2), j, roadlineWidth);
         }
     }
+
+    //we draw obstacles
+    float offsetWidth;
+    vector<obstacle>::iterator it;
+    for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); it++) {
+        if(it->isPerson) ofSetColor(155);
+        else ofSetColor(90);
+        switch(it->lane) {
+            case 1: offsetWidth = (iWidth*0.1 + iWidth*0.008); break;
+            case 2: offsetWidth = (iWidth*0.3 + iWidth*0.008); break;
+            case 3: offsetWidth = (iWidth*0.5 + iWidth*0.008); break;
+            case 4: offsetWidth = (iWidth*0.7 + iWidth*0.008); break;
+        }
+        ofRect(offsetWidth, it->height, iWidth*0.18, iHeight*0.06);
+    }
 }
 
 //--------------------------------------------------------------
@@ -133,6 +187,7 @@ void ofApp::keyPressed(int key) {
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
+
 }
 
 //--------------------------------------------------------------
@@ -147,6 +202,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
+
 }
 
 //--------------------------------------------------------------
