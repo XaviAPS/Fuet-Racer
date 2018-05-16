@@ -5,6 +5,12 @@
 #define NUM_BYTES 4 // Bytes to read
 #define NUM_OBSTACLES 30
 
+struct obstacle {
+    float height;
+    int row;    //1,2,3,4
+    bool isPerson;
+};
+
 class ofApp : public ofBaseApp{
 
 	public:

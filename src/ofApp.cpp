@@ -4,12 +4,6 @@
 // My idea is to have a "player" class in a separate file.
 // In this case, from here we should only have to trigger the right player's functions.
 
-struct obstacle {
-    float height;
-    int row;    //1,2,3,4
-    bool isPerson;
-};
-
 //--------------------------------------------------------------
 void ofApp::setup() {
 
