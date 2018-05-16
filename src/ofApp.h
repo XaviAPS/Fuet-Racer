@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "Player.hpp"
 
 #define NUM_BYTES 4 // Bytes to read
 #define NUM_OBSTACLES 30
@@ -18,8 +19,10 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
 
-		//map functions
-		void setupMap();
+        // Setup Components
+        void setupPlayer();
+        void setupMap();
+
 		//void updateMap();
         void drawMap();
 
@@ -40,4 +43,9 @@ class ofApp : public ofBaseApp{
 		bool             sendSerialMessage;
 		int              countCycles;
 		ofSerial         serial;
+    
+    
+        Player player;
+        ofImage playerImage;
+    
 };

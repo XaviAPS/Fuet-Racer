@@ -20,7 +20,14 @@ void ofApp::setup() {
 	countCycles = 0;
 
 	setupMap();
+    setupPlayer();
 
+}
+
+void ofApp::setupPlayer() {
+    playerImage.loadImage("racecar.png");
+    player.setup(&playerImage);
+    player.draw();
 }
 
 void ofApp::setupMap() {/*
@@ -74,6 +81,8 @@ void ofApp::draw() {
 
     ofBackground(0);
     drawMap();
+    player.draw();
+    
 /*
     //original example
     int iRadius = 1;
