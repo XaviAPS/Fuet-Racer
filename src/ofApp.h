@@ -4,11 +4,11 @@
 #include "Player.hpp"
 
 #define NUM_BYTES 4 // Bytes to read
-#define NUM_OBSTACLES 30
+#define NUM_OBSTACLES 100
 
 struct obstacle {
     float height;
-    int row;    //1,2,3,4
+    int lane;    //1,2,3,4
     bool isPerson;
 };
 
@@ -23,7 +23,10 @@ class ofApp : public ofBaseApp{
         void setupPlayer();
         void setupMap();
 
-		//void updateMap();
+        // Update Components
+		void updateMap();
+
+        // Draw Components
         void drawMap();
 
 		void keyPressed(int key);
@@ -37,15 +40,16 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 	private:
-	    vector<obstacle> obstacles;
+	    vector<obstacle> obstacles, onScreenObstacles;
 	    float            speed;
 		int              buttonValue, potentiometerMeanValue;
 		bool             sendSerialMessage;
 		int              countCycles;
 		ofSerial         serial;
-    
-    
+        clock_t          previousTime;
+        double           elapsed_secs;
+
         Player player;
         ofImage playerImage;
-    
+
 };
