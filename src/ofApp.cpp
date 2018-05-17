@@ -29,7 +29,6 @@ void ofApp::setup() {
 void ofApp::setupPlayer() {
     playerImage.loadImage("racecar.png");
     player.setup(&playerImage);
-    player.draw();
 }
 
 void ofApp::setupMap() {
@@ -38,11 +37,10 @@ void ofApp::setupMap() {
     for(int i=0; i<NUM_OBSTACLES; i++) {
         obstacle obst;
         obst.height = currentHeight;
-        obst.lane = (rand()%4)+1;
+        obst.lane = (rand()%4);
         obst.isPerson = false;
         obstacles.push_back(obst);
         currentHeight-=((rand()%300)+200);
-        //cout<<currentHeight<<endl;
     }
 }
 
@@ -51,8 +49,9 @@ void ofApp::update() {
 
     clock_t currentTime = clock();
     elapsed_secs = double(currentTime - previousTime);
-    //cout<<"t"<<elapsed_secs<<endl;
     updateMap();
+    player.update(elapsed_secs);
+    checkCollisions();
     previousTime = clock();
 /*
 	if (sendSerialMessage)
@@ -115,12 +114,24 @@ void ofApp::updateMap() {
     }
 }
 
+void ofApp::checkCollisions() {
+    float playerTop = player.pos.y - player.height/2;
+    float playerBot = player.pos.y + player.height/2;
+    vector<obstacle>::iterator it;
+    for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
+        if(it->lane==player.lane) {
+            if(it->height > playerTop && it->height < playerBot) {
+                it = onScreenObstacles.erase(it);
+            } else it++;
+        } else it++;
+    }
+}
+
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-    ofBackground(0);
     drawMap();
-    //player.draw();
+    player.draw();
 
 /*
     //original example
@@ -147,8 +158,8 @@ void ofApp::draw() {
 }
 
 void ofApp::drawMap() {
-    ofSetColor(255);
 
+    ofSetColor(255);
 	int iWidth = ofGetWidth();
 	int iHeight = ofGetHeight();
 	int roadlineWidth = 2;
@@ -171,23 +182,34 @@ void ofApp::drawMap() {
         if(it->isPerson) ofSetColor(155);
         else ofSetColor(90);
         switch(it->lane) {
-            case 1: offsetWidth = (iWidth*0.1 + iWidth*0.008); break;
-            case 2: offsetWidth = (iWidth*0.3 + iWidth*0.008); break;
-            case 3: offsetWidth = (iWidth*0.5 + iWidth*0.008); break;
-            case 4: offsetWidth = (iWidth*0.7 + iWidth*0.008); break;
+            case 0: offsetWidth = (iWidth*0.1 + iWidth*0.008); break;
+            case 1: offsetWidth = (iWidth*0.3 + iWidth*0.008); break;
+            case 2: offsetWidth = (iWidth*0.5 + iWidth*0.008); break;
+            case 3: offsetWidth = (iWidth*0.7 + iWidth*0.008); break;
         }
         ofRect(offsetWidth, it->height, iWidth*0.18, iHeight*0.06);
     }
 }
 
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key) {
+//-------------------------------------------------------------
+void ofApp::keyPressed(int key){
+    if(key==OF_KEY_LEFT)
+        player.is_left_pressed = true;
+    if(key==OF_KEY_RIGHT)
+        player.is_right_pressed = true;
+    if(key==OF_KEY_RETURN)
+        playerImage.loadImage("nightcar.png");
 
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
-
+    if(key==OF_KEY_LEFT)
+        player.is_left_pressed = false;
+    if(key==OF_KEY_RIGHT)
+        player.is_right_pressed = false;
+    if(key==OF_KEY_RETURN)
+        playerImage.loadImage("racecar.png");
 }
 
 //--------------------------------------------------------------

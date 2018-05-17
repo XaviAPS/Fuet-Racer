@@ -8,7 +8,7 @@
 
 struct obstacle {
     float height;
-    int lane;    //1,2,3,4
+    int lane;    //0 to 3
     bool isPerson;
 };
 
@@ -25,6 +25,7 @@ class ofApp : public ofBaseApp{
 
         // Update Components
 		void updateMap();
+		void checkCollisions();
 
         // Draw Components
         void drawMap();
