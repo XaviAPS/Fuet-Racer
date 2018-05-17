@@ -30,6 +30,8 @@ class ofApp : public ofBaseApp{
         // Draw Components
         void drawMap();
 
+        void exit();
+
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -44,7 +46,7 @@ class ofApp : public ofBaseApp{
 	    vector<obstacle> obstacles, onScreenObstacles;
 	    float            speed;
 		int              buttonValue, potentiometerMeanValue;
-		bool             sendSerialMessage;
+		bool             sendSerialMessage, endGame;
 		int              countCycles;
 		ofSerial         serial;
         clock_t          previousTime;

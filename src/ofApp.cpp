@@ -4,7 +4,6 @@
 // My idea is to have a "player" class in a separate file.
 // In this case, from here we should only have to trigger the right player's functions.
 
-//--------------------------------------------------------------
 void ofApp::setup() {
 
 	ofSetFrameRate(60);
@@ -19,11 +18,11 @@ void ofApp::setup() {
 
 	countCycles = 0;
 
+    endGame = false;
     previousTime = clock();
     speed = 0.2;
 	setupMap();
     setupPlayer();
-
 }
 
 void ofApp::setupPlayer() {
@@ -44,9 +43,8 @@ void ofApp::setupMap() {
     }
 }
 
-//--------------------------------------------------------------
 void ofApp::update() {
-
+    if(endGame) exit();
     clock_t currentTime = clock();
     elapsed_secs = double(currentTime - previousTime);
     updateMap();
@@ -122,12 +120,13 @@ void ofApp::checkCollisions() {
         if(it->lane==player.lane) {
             if(it->height > playerTop && it->height < playerBot) {
                 it = onScreenObstacles.erase(it);
+                player.lives--;
+                if(player.lives==0) endGame = true;
             } else it++;
         } else it++;
     }
 }
 
-//--------------------------------------------------------------
 void ofApp::draw() {
 
     drawMap();
@@ -165,13 +164,13 @@ void ofApp::drawMap() {
 	int roadlineWidth = 2;
 
     //we draw borders
-    ofRect(0, 0, iWidth/10, iHeight);
-    ofRect(iWidth-(iWidth/10), 0, iWidth/10, iHeight);
+    ofRect(0, 0, iWidth*0.1, iHeight);
+    ofRect(iWidth-(iWidth*0.1), 0, iWidth*0.1, iHeight);
     if(0.002*iWidth > 2) roadlineWidth = 0.002*iWidth;
 
     for(int i=1; i<4; i++) {
         for(int j=0; j<iHeight; j++) {
-             ofCircle((iWidth/10) + (i*iWidth*0.2), j, roadlineWidth);
+             ofCircle((iWidth*0.1) + (i*iWidth*0.2), j, roadlineWidth);
         }
     }
 
@@ -189,9 +188,18 @@ void ofApp::drawMap() {
         }
         ofRect(offsetWidth, it->height, iWidth*0.18, iHeight*0.06);
     }
+
+    //we draw lives
+    ofSetColor(220,20,60);
+    for(int i=0; i<player.lives; i++) {
+        ofCircle(iWidth*0.05, (iHeight*0.05)+(iHeight*i*0.04), 9.5);
+    }
+    ofSetColor(204);
+    for(int i=player.startingLives; i>player.lives; i--) {
+        ofCircle(iWidth*0.05, (iHeight*0.05)+(iHeight*(i-1)*0.04), 9.5);
+    }
 }
 
-//-------------------------------------------------------------
 void ofApp::keyPressed(int key){
     if(key==OF_KEY_LEFT)
         player.is_left_pressed = true;
@@ -199,10 +207,8 @@ void ofApp::keyPressed(int key){
         player.is_right_pressed = true;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("nightcar.png");
-
 }
 
-//--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
     if(key==OF_KEY_LEFT)
         player.is_left_pressed = false;
@@ -212,38 +218,37 @@ void ofApp::keyReleased(int key) {
         playerImage.loadImage("racecar.png");
 }
 
-//--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
 
 }
 
-//--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button) {
 
 }
 
-//--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
 
 }
 
-//--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button) {
 
 }
 
-//--------------------------------------------------------------
 void ofApp::windowResized(int w, int h) {
-
+    player.windowResized(w, h);
 }
 
-//--------------------------------------------------------------
 void ofApp::gotMessage(ofMessage msg) {
 
 }
 
-//--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
 
+void ofApp::exit() {
+    player.lanePositions.clear();
+    obstacles.clear();
+    onScreenObstacles.clear();
+    ofExit();
+}

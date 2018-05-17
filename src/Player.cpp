@@ -8,12 +8,13 @@ void Player::setup(ofImage * _img)
     width = ofGetWidth()*100/1024;
     height= ofGetHeight()*100/768;
     speed = 5;
+    startingLives = 5;
     lives = 5;
     lane  = 2; // 0 to 3
     for(int i=1; i<5; i++) {
         ofPoint lanePoint;
         lanePoint.x = ofGetWidth()*0.2*i;
-        lanePoint.y = ofGetHeight() - 100;
+        lanePoint.y = ofGetHeight() - (ofGetHeight()*100/768);
         lanePoint.z = 0;
         lanePositions.push_back(lanePoint);
     }
@@ -31,8 +32,8 @@ void Player::reset() {
 
 void Player::update(double elapsed_secs)
 {
+    // Position controllers
     waitTime-=elapsed_secs;
-    //cout<<"time"<<waitTime<<endl;
     if(waitTime<0) {
         if (is_left_pressed) {
             if(lane!=0) lane-=1;
@@ -53,4 +54,20 @@ void Player::draw()
 {
     ofSetColor(255);
     img->draw(pos.x - width/2, pos.y - height/2, width, height);
+}
+
+void Player::windowResized(int w, int h)
+{
+    // We need these to adapt car size and position
+    // to screen-size changes
+    lanePositions.clear();
+    width = w*100/1024;
+    height= h*100/768;
+    for(int i=1; i<5; i++) {
+        ofPoint lanePoint;
+        lanePoint.x = w*0.2*i;
+        lanePoint.y = h - (h*100/768);
+        lanePoint.z = 0;
+        lanePositions.push_back(lanePoint);
+    }
 }
