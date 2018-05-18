@@ -21,6 +21,7 @@ void ofApp::setup() {
     endGame = false;
     previousTime = clock();
     speed = 0.2;
+
 	setupMap();
     setupPlayer();
 }
@@ -41,6 +42,18 @@ void ofApp::setupMap() {
         obstacles.push_back(obst);
         currentHeight-=((rand()%300)+200);
     }
+
+    // Load explosion images & timers
+    ofDirectory dir;
+    int nFiles = dir.listDir("explosion");
+    for(int i=0; i<dir.numFiles(); i++) {
+        string filePath = dir.getPath(i);
+        explosionFrames.push_back(ofImage());
+        explosionFrames.back().loadImage(filePath);
+    }
+    explosionFPS = 8;
+    isFirstFrame = false;
+    isExpl = false;
 }
 
 void ofApp::update() {
@@ -121,6 +134,9 @@ void ofApp::checkCollisions() {
             if(it->height > playerTop && it->height < playerBot) {
                 it = onScreenObstacles.erase(it);
                 player.lives--;
+                explodingPoint.x = player.pos.x;
+                explodingPoint.y = player.pos.y;
+                isExpl = true;
                 if(player.lives==0) endGame = true;
             } else it++;
         } else it++;
@@ -131,6 +147,7 @@ void ofApp::draw() {
 
     drawMap();
     player.draw();
+    if(isExpl) drawExplosions();
 
 /*
     //original example
@@ -197,6 +214,26 @@ void ofApp::drawMap() {
     ofSetColor(204);
     for(int i=player.startingLives; i>player.lives; i--) {
         ofCircle(iWidth*0.05, (iHeight*0.05)+(iHeight*(i-1)*0.04), 9.5);
+    }
+}
+
+void ofApp::drawExplosions() {
+    int frameIndex = (int)(ofGetElapsedTimef() * explosionFPS) % explosionFrames.size();
+    if(isFirstFrame) {
+            offset = 9 - frameIndex;
+            isFirstFrame = false;
+    }
+    frameIndex = (frameIndex + offset) % explosionFrames.size();
+    if(frameIndex==0) cout<<"in-";
+    cout<<frameIndex<<endl;
+    int width = ofGetWidth()*100/1024;
+    int height= ofGetHeight()*100/768;
+    ofSetColor(255);
+    explosionFrames[frameIndex].draw(explodingPoint.x-width/2,explodingPoint.y-height/2,width,height);
+    if(frameIndex==8) {
+        isExpl = false;
+        isFirstFrame = true;
+        cout<<"-out"<<endl;
     }
 }
 

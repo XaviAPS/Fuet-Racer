@@ -26,9 +26,11 @@ class ofApp : public ofBaseApp{
         // Update Components
 		void updateMap();
 		void checkCollisions();
+		void explosion(float w, float h);
 
         // Draw Components
         void drawMap();
+        void drawExplosions();
 
         void exit();
 
@@ -51,6 +53,13 @@ class ofApp : public ofBaseApp{
 		ofSerial         serial;
         clock_t          previousTime;
         double           elapsed_secs;
+
+        // Explosion
+        vector<ofImage>  explosionFrames;
+        ofPoint          explodingPoint;
+        int              offset;
+        float            explosionFPS;
+        bool             isExpl, isFirstFrame;
 
         Player player;
         ofImage playerImage;
