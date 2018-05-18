@@ -7,23 +7,29 @@
 void ofApp::setup() {
 
 	ofSetFrameRate(60);
-
 	ofSetWindowPosition(75, 100);
-
 	ofBackground(0);
-	sendSerialMessage = false; //Variable to control the interval at which you read information from the Arduino
-
-	serial.enumerateDevices(); //print all the devices
+    
+	sendSerialMessage = false;  // Variable to control the interval at which you read information from the Arduino
+	serial.enumerateDevices();  // print all the devices
 	serial.setup("COM5", 9600); //open the device at this address
 
 	countCycles = 0;
 
     previousTime = clock();
-    speed = 0.2;
-
+    speed = 0.002;
+    
+    gameState = playing;
     gameWin = false;
 	setupMap();
     setupPlayer();
+    setupMainMenu();
+}
+
+void ofApp::setupMainMenu() {
+    backgroundImage.loadImage("gradient.png");
+    mainMenu = MainMenu(&backgroundImage, "go vegan");
+    gameState = menu;
 }
 
 void ofApp::setupPlayer() {
@@ -155,7 +161,11 @@ void ofApp::checkCollisions() {
 }
 
 void ofApp::draw() {
-
+    if (gameState == menu) {
+        mainMenu.draw();
+        return;
+    }
+    
     if(gameWin) {
         drawVictory();
     }
