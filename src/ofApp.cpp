@@ -18,10 +18,10 @@ void ofApp::setup() {
 
 	countCycles = 0;
 
-    endGame = false;
     previousTime = clock();
     speed = 0.2;
 
+    gameWin = false;
 	setupMap();
     setupPlayer();
 }
@@ -40,7 +40,7 @@ void ofApp::setupMap() {
         obst.lane = (rand()%4);
         obst.isPerson = false;
         obstacles.push_back(obst);
-        currentHeight-=((rand()%300)+200);
+        currentHeight-=((rand()%300)+120);
     }
 
     // Load explosion images & timers
@@ -51,18 +51,23 @@ void ofApp::setupMap() {
         explosionFrames.push_back(ofImage());
         explosionFrames.back().loadImage(filePath);
     }
-    explosionFPS = 8;
+    explosionFPS = 12;
     isFirstFrame = false;
     isExpl = false;
 }
 
 void ofApp::update() {
-    if(endGame) exit();
     clock_t currentTime = clock();
     elapsed_secs = double(currentTime - previousTime);
-    updateMap();
-    player.update(elapsed_secs);
-    checkCollisions();
+    if((player.lives<=0)||gameWin) {
+        exit();
+        endingTimer+=elapsed_secs;
+        if(endingTimer>3000) ofExit();
+    } else {
+        updateMap();
+        player.update(elapsed_secs);
+        checkCollisions();
+    }
     previousTime = clock();
 /*
 	if (sendSerialMessage)
@@ -106,7 +111,7 @@ void ofApp::updateMap() {
     vector<obstacle>::iterator it;
     for(it = obstacles.begin(); it != obstacles.end(); ) {
         it->height+=(elapsed_secs*speed);
-        if(it->height>0) {
+        if(it->height+(ofGetHeight()*0.06)>0) {
             obstacle aux;
             aux.height = it->height;
             aux.lane = it->lane;
@@ -117,11 +122,18 @@ void ofApp::updateMap() {
         else it++;
     }
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
-        if(it->height>ofGetHeight()) it = onScreenObstacles.erase(it);
-        else {
+        if(it->height>ofGetHeight()) {
+            it = onScreenObstacles.erase(it);
+            if(speed<0.6) speed = speed*1.036;
+            else if(speed<1.0) speed = speed*1.024;
+            else speed = speed*1.004;
+        } else {
             it->height+=(elapsed_secs*speed);
             it++;
         }
+    }
+    if(obstacles.size()==0) {
+        if(onScreenObstacles.size()==0) gameWin = true;
     }
 }
 
@@ -137,7 +149,6 @@ void ofApp::checkCollisions() {
                 explodingPoint.x = player.pos.x;
                 explodingPoint.y = player.pos.y;
                 isExpl = true;
-                if(player.lives==0) endGame = true;
             } else it++;
         } else it++;
     }
@@ -145,10 +156,15 @@ void ofApp::checkCollisions() {
 
 void ofApp::draw() {
 
-    drawMap();
-    player.draw();
-    if(isExpl) drawExplosions();
-
+    if(gameWin) {
+        drawVictory();
+    }
+    else if(player.lives<=0) drawDefeat();
+    else {
+        drawMap();
+        player.draw();
+        if(isExpl) drawExplosions();
+    }
 /*
     //original example
     int iRadius = 1;
@@ -196,7 +212,7 @@ void ofApp::drawMap() {
     vector<obstacle>::iterator it;
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); it++) {
         if(it->isPerson) ofSetColor(155);
-        else ofSetColor(90);
+        else ofSetColor((speed*255),abs(127-(speed*255)),255-(speed*255));
         switch(it->lane) {
             case 0: offsetWidth = (iWidth*0.1 + iWidth*0.008); break;
             case 1: offsetWidth = (iWidth*0.3 + iWidth*0.008); break;
@@ -224,17 +240,25 @@ void ofApp::drawExplosions() {
             isFirstFrame = false;
     }
     frameIndex = (frameIndex + offset) % explosionFrames.size();
-    if(frameIndex==0) cout<<"in-";
-    cout<<frameIndex<<endl;
-    int width = ofGetWidth()*100/1024;
-    int height= ofGetHeight()*100/768;
+    //if(frameIndex==0) cout<<"in-";
+    //cout<<frameIndex<<endl;
+    int width = ofGetWidth()*172/1024;
+    int height= ofGetHeight()*172/768;
     ofSetColor(255);
     explosionFrames[frameIndex].draw(explodingPoint.x-width/2,explodingPoint.y-height/2,width,height);
     if(frameIndex==8) {
         isExpl = false;
         isFirstFrame = true;
-        cout<<"-out"<<endl;
+        //cout<<"-out"<<endl;
     }
+}
+
+void ofApp::drawVictory() {
+    ofBackground(173,255,47);
+}
+
+void ofApp::drawDefeat() {
+    ofBackground(220,20,60);
 }
 
 void ofApp::keyPressed(int key){
@@ -287,5 +311,4 @@ void ofApp::exit() {
     player.lanePositions.clear();
     obstacles.clear();
     onScreenObstacles.clear();
-    ofExit();
 }

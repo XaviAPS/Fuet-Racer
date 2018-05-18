@@ -4,7 +4,7 @@
 #include "Player.hpp"
 
 #define NUM_BYTES 4 // Bytes to read
-#define NUM_OBSTACLES 100
+#define NUM_OBSTACLES 150
 
 struct obstacle {
     float height;
@@ -32,6 +32,9 @@ class ofApp : public ofBaseApp{
         void drawMap();
         void drawExplosions();
 
+        // Ending related
+        void drawVictory();
+        void drawDefeat();
         void exit();
 
 		void keyPressed(int key);
@@ -46,9 +49,9 @@ class ofApp : public ofBaseApp{
 
 	private:
 	    vector<obstacle> obstacles, onScreenObstacles;
-	    float            speed;
+	    float            speed, endingTimer;
 		int              buttonValue, potentiometerMeanValue;
-		bool             sendSerialMessage, endGame;
+		bool             sendSerialMessage, gameWin;
 		int              countCycles;
 		ofSerial         serial;
         clock_t          previousTime;
