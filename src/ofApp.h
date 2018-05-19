@@ -49,13 +49,12 @@ class ofApp : public ofBaseApp{
 
 	private:
 	    vector<obstacle> obstacles, onScreenObstacles;
-	    float            speed, endingTimer;
+	    float            speed, initialSpeed, endingTimer;
 		int              buttonValue, potentiometerMeanValue;
 		bool             sendSerialMessage, gameWin;
 		int              countCycles;
 		ofSerial         serial;
-        clock_t          previousTime;
-        double           elapsed_secs;
+        double           previousTime, elapsed_frames;
 
         // Explosion
         vector<ofImage>  explosionFrames;

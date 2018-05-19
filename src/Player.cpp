@@ -30,22 +30,22 @@ void Player::reset() {
     lane  = 2;
 }
 
-void Player::update(double elapsed_secs)
+void Player::update(double elapsed_frames)
 {
     // Position controllers
-    waitTime-=elapsed_secs;
+    waitTime-=elapsed_frames;
     if(waitTime<0) {
         if (is_left_pressed) {
             if(lane!=0) lane-=1;
             else lives-=1;
             pos.x = lanePositions[lane].x;
-            waitTime = 270;
+            waitTime = 0.2;
         }
         if (is_right_pressed) {
             if(lane!=3) lane+=1;
             else lives-=1;
             pos.x = lanePositions[lane].x;
-            waitTime = 270;
+            waitTime = 0.2;
         }
     }
 }
