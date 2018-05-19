@@ -19,7 +19,10 @@ public:
 
     string text;
     
-    void draw();
+    void drawMenu();
+    void drawVictory();
+    void drawDefeat();
+
 private:
     ofImage carImage;
     float carWidth = 560;
@@ -29,6 +32,6 @@ private:
     float flagWidth = 400;
     float flagHeight = 320;
   
-    
-    
+    ofTrueTypeFont verdana;
+
 };

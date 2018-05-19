@@ -162,7 +162,7 @@ void ofApp::checkCollisions() {
 
 void ofApp::draw() {
     if (gameState == menu) {
-        mainMenu.draw();
+        mainMenu.drawVictory();
         return;
     }
     
