@@ -9,12 +9,13 @@
 
 MainMenu::MainMenu() {}
 
-MainMenu::MainMenu(ofImage *background, string text) {
+MainMenu::MainMenu(ofImage *background) {
     this->background = background;
-    this->text = text;
+    
     carImage = ofImage("racecar_side.png");
     flagImage = ofImage("checkeredflag.png");
-    verdana.loadFont("verdana.ttf", 30, true, true);
+    
+    verdana.loadFont("verdana.ttf", 32, true, true);
     verdana.setLineHeight(18.0f);
     verdana.setLetterSpacing(1.037);
 
@@ -22,25 +23,36 @@ MainMenu::MainMenu(ofImage *background, string text) {
 
 void MainMenu::drawMenu() {
     background->draw(0, 0, ofGetWidth(), ofGetHeight());
-   // carImage.draw(ofGetWidth()/2 - carWidth/2, ofGetHeight()/2 - carHeight/2, carWidth, carHeight);
-    verdana.drawString("PRESS SPACE TO START", ofGetWidth()/2, 92);
-
+    carImage.draw(ofGetWidth()/2 - carWidth/2,
+                  ofGetHeight()/2 - carHeight/1.9,
+                  carWidth, carHeight);
+    
+    float textWidth = verdana.stringWidth(menuText);
+    verdana.drawString(menuText,
+                       ofGetWidth()/2 - textWidth/2,
+                       ofGetHeight()/2 + carHeight/1.2);
 }
 
 void MainMenu::drawVictory() {
     background->draw(0, 0, ofGetWidth(), ofGetHeight());
     flagImage.draw(ofGetWidth()/2 - flagWidth/2,
-                   ofGetHeight()/2 - flagHeight/2,
+                   ofGetHeight()/2 - flagHeight/1.9,
                    flagWidth, flagHeight);
     
-    verdana.drawString("YOU WIN! :)", ofGetWidth()/2, ofGetHeight()/2 + flagHeight/1.5);
+    float textWidth = verdana.stringWidth(victoryText);
+    verdana.drawString(victoryText,
+                       ofGetWidth()/2 - textWidth/2,
+                       ofGetHeight()/2 + flagHeight/1.4);
     
 }
 
 void MainMenu::drawDefeat() {
     background->draw(0, 0, ofGetWidth(), ofGetHeight());
-    // carImage.draw(ofGetWidth()/2 - carWidth/2, ofGetHeight()/2 - carHeight/2, carWidth, carHeight);
-    flagImage.draw(ofGetWidth()/2 - flagWidth/2, ofGetHeight()/2 - flagHeight/2, flagWidth, flagHeight);
-    verdana.drawString("You Win! :)", ofGetWidth()/2, 92);
+    float textWidth = verdana.stringWidth(defeatText);
+    float textHeight = verdana.stringHeight(defeatText);
+
+    verdana.drawString(defeatText,
+                       ofGetWidth()/2 - textWidth/2,
+                       ofGetHeight()/2 + textHeight/2);
     
 }

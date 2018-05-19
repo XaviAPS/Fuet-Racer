@@ -12,12 +12,14 @@
 class MainMenu {
 public:
     MainMenu();
-    MainMenu(ofImage *background, string text);
+    MainMenu(ofImage *background);
    
     // Make background interchangeable
     ofImage *background;
 
-    string text;
+    string menuText =       "PRESS SPACE TO START";
+    string victoryText =    "YOU WIN! :)";
+    string defeatText =     "HAAA YOU SUCK!";
     
     void drawMenu();
     void drawVictory();
@@ -33,5 +35,4 @@ private:
     float flagHeight = 320;
   
     ofTrueTypeFont verdana;
-
 };

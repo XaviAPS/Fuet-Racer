@@ -28,7 +28,7 @@ void ofApp::setup() {
 
 void ofApp::setupMainMenu() {
     backgroundImage.loadImage("gradient.png");
-    mainMenu = MainMenu(&backgroundImage, "go vegan");
+    mainMenu = MainMenu(&backgroundImage);
     gameState = menu;
 }
 
@@ -162,13 +162,14 @@ void ofApp::checkCollisions() {
 
 void ofApp::draw() {
     if (gameState == menu) {
-        mainMenu.drawVictory();
+        mainMenu.drawDefeat();
         return;
     }
     
     if(gameWin) {
         drawVictory();
     }
+    
     else if(player.lives<=0) drawDefeat();
     else {
         drawMap();
