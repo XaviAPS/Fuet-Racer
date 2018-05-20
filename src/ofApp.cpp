@@ -7,25 +7,30 @@
 void ofApp::setup() {
 
 	ofSetFrameRate(60);
-
 	ofSetWindowPosition(75, 100);
-
 	ofBackground(0);
-	sendSerialMessage = false; //Variable to control the interval at which you read information from the Arduino
-
-	serial.enumerateDevices(); //print all the devices
+    
+	sendSerialMessage = false;  // Variable to control the interval at which you read information from the Arduino
+	serial.enumerateDevices();  // print all the devices
 	serial.setup("COM5", 9600); //open the device at this address
 
 	countCycles = 0;
 
-    previousTime = ofGetElapsedTimef();
-    initialSpeed = 180;
-    speed = initialSpeed;
+  gameState = playing;
+  previousTime = ofGetElapsedTimef();
+  initialSpeed = 180;
+  speed = initialSpeed;
 
-    gameWin = false;
-    setupPlayer();
-	setupMap();
+  gameWin = false;
+  setupPlayer();
+  setupMainMenu();
+  setupMap();
+}
 
+void ofApp::setupMainMenu() {
+    backgroundImage.loadImage("gradient.png");
+    mainMenu = MainMenu(&backgroundImage);
+    gameState = menu;
 }
 
 void ofApp::setupPlayer() {
@@ -164,10 +169,15 @@ void ofApp::checkCollisions() {
 }
 
 void ofApp::draw() {
-
+    if (gameState == menu) {
+        mainMenu.drawDefeat();
+        return;
+    }
+    
     if(gameWin) {
         drawVictory();
     }
+    
     else if(player.lives<=0) drawDefeat();
     else {
         drawMap();

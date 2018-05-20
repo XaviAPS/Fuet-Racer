@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "MainMenu.hpp"
 #include "Player.hpp"
 
 #define NUM_BYTES 4 // Bytes to read
@@ -10,6 +11,10 @@ struct obstacle {
     float height;
     int lane;    //0 to 3
     bool isPerson;
+};
+
+enum gameState {
+    menu, playing, paused
 };
 
 class ofApp : public ofBaseApp{
@@ -22,6 +27,7 @@ class ofApp : public ofBaseApp{
         // Setup Components
         void setupPlayer();
         void setupMap();
+        void setupMainMenu();
 
         // Update Components
 		void updateMap();
@@ -48,22 +54,28 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 	private:
-	    vector<obstacle> obstacles, onScreenObstacles;
-	    float            speed, initialSpeed, endingTimer;
-		int              buttonValue, potentiometerMeanValue;
-		bool             sendSerialMessage, gameWin;
-		int              countCycles;
-		ofSerial         serial;
-        double           previousTime, elapsed_frames;
+      gameState           gameState;
+    
+	    vector<obstacle>    obstacles, onScreenObstacles;
+	    float               speed, endingTimer;
+		  int                 buttonValue, potentiometerMeanValue;
+		  bool                sendSerialMessage, gameWin;
+		  int                 countCycles;
+		  ofSerial            serial;
+      clock_t             previousTime;
+      double              elapsed_secs;
 
         // Explosion
-        vector<ofImage>  explosionFrames;
-        ofPoint          explodingPoint;
-        int              offset;
-        float            explosionFPS;
-        bool             isExpl, isFirstFrame;
+        vector<ofImage>     explosionFrames;
+        ofPoint             explodingPoint;
+        int                 offset;
+        float               explosionFPS;
+        bool                isExpl, isFirstFrame;
 
-        Player player;
-        ofImage playerImage;
+        Player              player;
+        ofImage             playerImage;
+        MainMenu            mainMenu;
+        ofImage             backgroundImage;
+
 
 };

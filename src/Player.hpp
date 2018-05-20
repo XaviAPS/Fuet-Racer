@@ -15,7 +15,7 @@ class Player {
         vector<ofPoint> lanePositions;
         ofPoint pos;
         ofImage *img;
-        float width, height, speed,;
+        float width, height, speed;
         int lives, startingLives, lane;
         bool is_left_pressed, is_right_pressed;
         double waitTime;
