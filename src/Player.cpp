@@ -32,30 +32,44 @@ void Player::reset() {
     lane  = 2;
 }
 
+void Player::switchToLane(int input_lane) {
+    lane = input_lane;
+    pos.x = lanePositions[lane].x;
+}
+
 void Player::update(double elapsed_frames)
 {
     // Position controllers
     waitTime-=elapsed_frames;
+    bool arduino_is_connected = true;
     if(waitTime<0) {
-        if (is_left_pressed) {
+
+        if(not arduino_is_connected) {
+            if (is_left_pressed) {
             if(lane!=0) lane-=1;
-            //else lives-=1;
-            pos.x = lanePositions[lane].x;
+            switchToLane(lane);
             waitTime = 0.2;
         }
-        if (is_right_pressed) {
-            if(lane!=3) lane+=1;
-            //else lives-=1;
-            pos.x = lanePositions[lane].x;
-            waitTime = 0.2;
-        }
-        if (is_up_pressed) {
-            if(missiles>=1) {
-                napalm = true;
-                missiles--;
+            if (is_right_pressed) {
+                if(lane!=3) lane+=1;
+                switchToLane(lane);
+                waitTime = 0.2;
             }
-            waitTime = 0.2;
+            if (is_up_pressed) {
+                if(missiles>=1) {
+                    napalm = true;
+                    missiles--;
+                }
+                waitTime = 0.2;
+            }
         }
+
+        else
+        {
+
+        }
+
+
     }
 }
 
