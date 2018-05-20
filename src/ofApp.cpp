@@ -170,15 +170,15 @@ void ofApp::checkCollisions() {
 
 void ofApp::draw() {
     if (gameState == menu) {
-        mainMenu.drawDefeat();
+        mainMenu.drawMenu();
         return;
     }
     
     if(gameWin) {
-        drawVictory();
+        mainMenu.drawVictory();
     }
     
-    else if(player.lives<=0) drawDefeat();
+    else if(player.lives<=0) mainMenu.drawDefeat();
     else {
         drawMap();
         player.draw();
@@ -273,14 +273,6 @@ void ofApp::drawExplosions() {
     }
 }
 
-void ofApp::drawVictory() {
-    ofBackground(173,255,47);
-}
-
-void ofApp::drawDefeat() {
-    ofBackground(220,20,60);
-}
-
 void ofApp::keyPressed(int key){
     if(key==OF_KEY_LEFT)
         player.is_left_pressed = true;
@@ -297,6 +289,8 @@ void ofApp::keyReleased(int key) {
         player.is_right_pressed = false;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("racecar.png");
+    if(key==' ')
+        gameState = playing;
 }
 
 void ofApp::mouseMoved(int x, int y) {
