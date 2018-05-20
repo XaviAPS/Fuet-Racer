@@ -10,6 +10,8 @@ void Player::setup(ofImage * _img)
     speed = 5;
     startingLives = 5;
     lives = 5;
+    startingMissiles = 3;
+    missiles = 3;
     lane  = 2; // 0 to 3
     for(int i=1; i<5; i++) {
         ofPoint lanePoint;
@@ -37,14 +39,21 @@ void Player::update(double elapsed_frames)
     if(waitTime<0) {
         if (is_left_pressed) {
             if(lane!=0) lane-=1;
-            else lives-=1;
+            //else lives-=1;
             pos.x = lanePositions[lane].x;
             waitTime = 0.2;
         }
         if (is_right_pressed) {
             if(lane!=3) lane+=1;
-            else lives-=1;
+            //else lives-=1;
             pos.x = lanePositions[lane].x;
+            waitTime = 0.2;
+        }
+        if (is_up_pressed) {
+            if(missiles>=1) {
+                napalm = true;
+                missiles--;
+            }
             waitTime = 0.2;
         }
     }

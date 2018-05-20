@@ -9,14 +9,14 @@ void ofApp::setup() {
 	ofSetFrameRate(60);
 	ofSetWindowPosition(75, 100);
 	ofBackground(0);
-    
+
 	sendSerialMessage = false;  // Variable to control the interval at which you read information from the Arduino
 	serial.enumerateDevices();  // print all the devices
 	serial.setup("COM5", 9600); //open the device at this address
 
 	countCycles = 0;
 
-  gameState = playing;
+  state = playing;
   previousTime = ofGetElapsedTimef();
   initialSpeed = 180;
   speed = initialSpeed;
@@ -30,7 +30,7 @@ void ofApp::setup() {
 void ofApp::setupMainMenu() {
     backgroundImage.loadImage("gradient.png");
     mainMenu = MainMenu(&backgroundImage);
-    gameState = menu;
+    state = menu;
 }
 
 void ofApp::setupPlayer() {
@@ -65,23 +65,18 @@ void ofApp::setupMap() {
 }
 
 void ofApp::update() {
-    //clock_t currentTime = clock();
-    //elapsed_secs = double(currentTime - previousTime);
     double currentTime = ofGetElapsedTimef();
     elapsed_frames = currentTime - previousTime;
     //cout<<elapsed_frames<<endl;
     if((player.lives<=0)||gameWin) {
         exit();
-        //endingTimer+=elapsed_secs;
         endingTimer+=elapsed_frames;
         if(endingTimer>300) ofExit();
     } else {
         updateMap();
-        //player.update(elapsed_secs);
         player.update(elapsed_frames);
         checkCollisions();
     }
-    //previousTime = clock();
     previousTime = ofGetElapsedTimef();
 /*
 	if (sendSerialMessage)
@@ -136,7 +131,11 @@ void ofApp::updateMap() {
         else it++;
     }
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
-        if(it->height>ofGetHeight()) {
+        if(player.napalm == true) {
+            if(it->lane == player.lane) it = onScreenObstacles.erase(it);
+            else it++;
+        }
+        else if(it->height>ofGetHeight()) {
             it = onScreenObstacles.erase(it);
             if(speed<230) speed = speed*1.056;
             else if(speed<270) speed = speed*1.028;
@@ -149,6 +148,7 @@ void ofApp::updateMap() {
     if(obstacles.size()==0) {
         if(onScreenObstacles.size()==0) gameWin = true;
     }
+    player.napalm = false;
 }
 
 void ofApp::checkCollisions() {
@@ -169,16 +169,18 @@ void ofApp::checkCollisions() {
 }
 
 void ofApp::draw() {
-    if (gameState == menu) {
+    if (state == menu) {
         mainMenu.drawMenu();
         return;
     }
-    
+
+    // End game conditions
     if(gameWin) {
         mainMenu.drawVictory();
     }
-    
     else if(player.lives<=0) mainMenu.drawDefeat();
+
+    // Game loop
     else {
         drawMap();
         player.draw();
@@ -242,7 +244,7 @@ void ofApp::drawMap() {
         ofRect(offsetWidth, it->height, iWidth*0.18, iHeight*0.06);
     }
 
-    //we draw lives
+    // we draw lives
     ofSetColor(220,20,60);
     for(int i=0; i<player.lives; i++) {
         ofCircle(iWidth*0.05, (iHeight*0.05)+(iHeight*i*0.04), 9.5);
@@ -250,6 +252,16 @@ void ofApp::drawMap() {
     ofSetColor(204);
     for(int i=player.startingLives; i>player.lives; i--) {
         ofCircle(iWidth*0.05, (iHeight*0.05)+(iHeight*(i-1)*0.04), 9.5);
+    }
+
+    // we draw missiles
+     ofSetColor(233,100,0);
+    for(int i=0; i<player.missiles; i++) {
+        ofCircle(iWidth*0.95, (iHeight*0.05)+(iHeight*i*0.04), 9.5);
+    }
+    ofSetColor(204);
+    for(int i=player.startingMissiles; i>player.missiles; i--) {
+        ofCircle(iWidth*0.95, (iHeight*0.05)+(iHeight*(i-1)*0.04), 9.5);
     }
 }
 
@@ -273,11 +285,13 @@ void ofApp::drawExplosions() {
     }
 }
 
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key) {
     if(key==OF_KEY_LEFT)
         player.is_left_pressed = true;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = true;
+    if(key==OF_KEY_UP)
+        player.is_up_pressed = true;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("nightcar.png");
 }
@@ -287,10 +301,12 @@ void ofApp::keyReleased(int key) {
         player.is_left_pressed = false;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = false;
+    if(key==OF_KEY_UP)
+        player.is_up_pressed = false;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("racecar.png");
     if(key==' ')
-        gameState = playing;
+        state = playing;
 }
 
 void ofApp::mouseMoved(int x, int y) {

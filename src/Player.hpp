@@ -16,7 +16,7 @@ class Player {
         ofPoint pos;
         ofImage *img;
         float width, height, speed;
-        int lives, startingLives, lane;
-        bool is_left_pressed, is_right_pressed;
+        int lives, startingLives, missiles, startingMissiles, lane;
+        bool is_left_pressed, is_right_pressed, is_up_pressed, napalm;
         double waitTime;
 };
