@@ -136,6 +136,9 @@ void ofApp::updateMap() {
         else it++;
     }
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
+        if(player.napalm == true) {
+            if(it->lane == player.lane) it = onScreenObstacles.erase(it);
+        }
         if(it->height>ofGetHeight()) {
             it = onScreenObstacles.erase(it);
             if(speed<230) speed = speed*1.056;
@@ -149,6 +152,7 @@ void ofApp::updateMap() {
     if(obstacles.size()==0) {
         if(onScreenObstacles.size()==0) gameWin = true;
     }
+    player.napalm = false;
 }
 
 void ofApp::checkCollisions() {
@@ -174,11 +178,13 @@ void ofApp::draw() {
         return;
     }
     
+    // End game conditions
     if(gameWin) {
         mainMenu.drawVictory();
     }
-    
     else if(player.lives<=0) mainMenu.drawDefeat();
+    
+    // Game loop
     else {
         drawMap();
         player.draw();
@@ -273,11 +279,13 @@ void ofApp::drawExplosions() {
     }
 }
 
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key) {
     if(key==OF_KEY_LEFT)
         player.is_left_pressed = true;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = true;
+    if(key==OF_KEY_UP)
+        player.is_up_pressed = true;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("nightcar.png");
 }
@@ -287,6 +295,8 @@ void ofApp::keyReleased(int key) {
         player.is_left_pressed = false;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = false;
+    if(key==OF_KEY_UP)
+        player.is_up_pressed = false;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("racecar.png");
     if(key==' ')
