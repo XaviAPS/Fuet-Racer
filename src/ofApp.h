@@ -54,8 +54,8 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 	private:
-      gameState           gameState;
-    
+      gameState          state;
+
 	    vector<obstacle>    obstacles, onScreenObstacles;
 	    float               speed, initialSpeed, endingTimer;
 		  int                 buttonValue, potentiometerMeanValue;

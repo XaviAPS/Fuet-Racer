@@ -2972,11 +2972,12 @@
 	"ofCamera.h"
 	"ofEvents.h"
 
-1526759505 c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\ofapp.h
+1526847116 c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\ofapp.h
 	"ofMain.h"
+	"MainMenu.hpp"
 	"Player.hpp"
 
-1526585272 c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\player.hpp
+1526846979 c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\player.hpp
 	"ofMain.h"
 
 1410253398 c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\libs\openframeworks\app\ofappglutwindow.h
@@ -2986,9 +2987,15 @@
 	"ofTypes.h"
 	"ofPixels.h"
 
-1526760181 source:c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\ofapp.cpp
+1526847144 source:c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\ofapp.cpp
 	"ofApp.h"
 
-1526758093 source:c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\player.cpp
+1526846979 source:c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\player.cpp
 	"Player.hpp"
+
+1526846373 c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\mainmenu.hpp
+	"ofMain.h"
+
+1526846373 source:c:\program files (x86)\openframework\of_v0.8.4_win_cb_release\apps\myapps\interactivesystems\src\mainmenu.cpp
+	"MainMenu.hpp"
 
