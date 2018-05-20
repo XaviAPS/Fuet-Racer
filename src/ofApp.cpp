@@ -16,14 +16,15 @@ void ofApp::setup() {
 
 	countCycles = 0;
 
-    previousTime = clock();
-    speed = 0.002;
-    
-    gameState = playing;
-    gameWin = false;
-	setupMap();
-    setupPlayer();
-    setupMainMenu();
+  gameState = playing;
+  previousTime = ofGetElapsedTimef();
+  initialSpeed = 180;
+  speed = initialSpeed;
+
+  gameWin = false;
+  setupPlayer();
+  setupMainMenu();
+  setupMap();
 }
 
 void ofApp::setupMainMenu() {
@@ -40,13 +41,14 @@ void ofApp::setupPlayer() {
 void ofApp::setupMap() {
     srand(time(NULL));
     float currentHeight = -300;
+    float minDistance = player.height + (ofGetHeight()* 0.1);
     for(int i=0; i<NUM_OBSTACLES; i++) {
         obstacle obst;
         obst.height = currentHeight;
         obst.lane = (rand()%4);
         obst.isPerson = false;
         obstacles.push_back(obst);
-        currentHeight-=((rand()%300)+120);
+        currentHeight-=((rand()%300)+minDistance);
     }
 
     // Load explosion images & timers
@@ -63,18 +65,24 @@ void ofApp::setupMap() {
 }
 
 void ofApp::update() {
-    clock_t currentTime = clock();
-    elapsed_secs = double(currentTime - previousTime);
+    //clock_t currentTime = clock();
+    //elapsed_secs = double(currentTime - previousTime);
+    double currentTime = ofGetElapsedTimef();
+    elapsed_frames = currentTime - previousTime;
+    //cout<<elapsed_frames<<endl;
     if((player.lives<=0)||gameWin) {
         exit();
-        endingTimer+=elapsed_secs;
-        if(endingTimer>3000) ofExit();
+        //endingTimer+=elapsed_secs;
+        endingTimer+=elapsed_frames;
+        if(endingTimer>300) ofExit();
     } else {
         updateMap();
-        player.update(elapsed_secs);
+        //player.update(elapsed_secs);
+        player.update(elapsed_frames);
         checkCollisions();
     }
-    previousTime = clock();
+    //previousTime = clock();
+    previousTime = ofGetElapsedTimef();
 /*
 	if (sendSerialMessage)
 	{
@@ -116,7 +124,7 @@ void ofApp::updateMap() {
     int i,j=0;
     vector<obstacle>::iterator it;
     for(it = obstacles.begin(); it != obstacles.end(); ) {
-        it->height+=(elapsed_secs*speed);
+        it->height+=(elapsed_frames*speed);
         if(it->height+(ofGetHeight()*0.06)>0) {
             obstacle aux;
             aux.height = it->height;
@@ -130,11 +138,11 @@ void ofApp::updateMap() {
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
         if(it->height>ofGetHeight()) {
             it = onScreenObstacles.erase(it);
-            if(speed<0.6) speed = speed*1.036;
-            else if(speed<1.0) speed = speed*1.024;
-            else speed = speed*1.004;
+            if(speed<230) speed = speed*1.056;
+            else if(speed<270) speed = speed*1.028;
+            else speed = speed*1.014;
         } else {
-            it->height+=(elapsed_secs*speed);
+            it->height+=(elapsed_frames*speed);
             it++;
         }
     }
@@ -219,11 +227,12 @@ void ofApp::drawMap() {
     }
 
     //we draw obstacles
+    float speedRate = ((speed - initialSpeed)/initialSpeed)*0.5;
     float offsetWidth;
     vector<obstacle>::iterator it;
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); it++) {
         if(it->isPerson) ofSetColor(155);
-        else ofSetColor((speed*255),abs(127-(speed*255)),255-(speed*255));
+        else ofSetColor(speedRate*255,abs(127-(speedRate*255)),255-(speedRate*(255/2)));
         switch(it->lane) {
             case 0: offsetWidth = (iWidth*0.1 + iWidth*0.008); break;
             case 1: offsetWidth = (iWidth*0.3 + iWidth*0.008); break;

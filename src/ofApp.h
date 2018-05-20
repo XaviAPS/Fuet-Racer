@@ -54,16 +54,16 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 	private:
-        gameState           gameState;
+      gameState           gameState;
     
 	    vector<obstacle>    obstacles, onScreenObstacles;
 	    float               speed, endingTimer;
-		int                 buttonValue, potentiometerMeanValue;
-		bool                sendSerialMessage, gameWin;
-		int                 countCycles;
-		ofSerial            serial;
-        clock_t             previousTime;
-        double              elapsed_secs;
+		  int                 buttonValue, potentiometerMeanValue;
+		  bool                sendSerialMessage, gameWin;
+		  int                 countCycles;
+		  ofSerial            serial;
+      clock_t             previousTime;
+      double              elapsed_secs;
 
         // Explosion
         vector<ofImage>     explosionFrames;
