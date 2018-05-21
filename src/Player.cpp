@@ -60,6 +60,7 @@ void Player::update(double elapsed_frames) {
         if(waitTime<0) {
             if(missiles>=1) {
                 napalm = true;
+                missiles--;
             }
             waitTime = 0.2;
         }

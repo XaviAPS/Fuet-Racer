@@ -64,7 +64,7 @@ class ofApp : public ofBaseApp {
 		void gotMessage(ofMessage msg);
 
 	private:
-        gameState          state;
+        gameState           state;
 
         vector<struct::obstacle>    obstacles, onScreenObstacles;
 	    float               speed, initialSpeed, endingTimer;

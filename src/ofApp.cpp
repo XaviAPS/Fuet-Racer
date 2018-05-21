@@ -220,6 +220,7 @@ void ofApp::draw() {
         mainMenu.drawMenu();
         return;
     }
+
     // End game conditions
     if(gameWin) mainMenu.drawVictory();
     else if(player.lives<=0) mainMenu.drawDefeat();
@@ -298,7 +299,7 @@ void ofApp::drawExplosions(struct::explosion *o) {
         //cout<<"in "<<o->offset<<" "<<frameIndex<<endl;
     }
     frameIndex = (frameIndex + o->offset) % explosionFrames.size();
-    cout<<frameIndex<<endl;
+    //cout<<frameIndex<<endl;
     int width = ofGetWidth()*172/1024;
     int height= ofGetHeight()*172/768;
     ofSetColor(255);
@@ -311,7 +312,7 @@ void ofApp::keyPressed(int key) {
         player.is_left_pressed = true;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = true;
-   if(key==OF_KEY_UP)
+    if(key==OF_KEY_UP)
         player.is_up_pressed = true;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("nightcar.png");
@@ -322,10 +323,8 @@ void ofApp::keyReleased(int key) {
         player.is_left_pressed = false;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = false;
-    if(key==OF_KEY_UP) {
+    if(key==OF_KEY_UP)
         player.is_up_pressed = false;
-        player.missiles--;
-    }
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("racecar.png");
     if(key==' ')
