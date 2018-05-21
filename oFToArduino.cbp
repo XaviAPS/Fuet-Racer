@@ -118,6 +118,8 @@
 		<Unit filename="icon.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="src/MainMenu.cpp" />
+		<Unit filename="src/MainMenu.hpp" />
 		<Unit filename="src/Player.cpp" />
 		<Unit filename="src/Player.hpp" />
 		<Unit filename="src/main.cpp">

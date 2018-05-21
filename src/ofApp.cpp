@@ -12,7 +12,7 @@ void ofApp::setup() {
 
 	sendSerialMessage = false;  // Variable to control the interval at which you read information from the Arduino
 	serial.enumerateDevices();  // print all the devices
-	serial.setup("COM5", 9600); //open the device at this address
+	serial.setup("COM4", 9600); //open the device at this address
 
 	countCycles = 0;
 
@@ -67,7 +67,7 @@ void ofApp::setupMap() {
 void ofApp::update() {
     double currentTime = ofGetElapsedTimef();
     elapsed_frames = currentTime - previousTime;
-    //cout<<elapsed_frames<<endl;
+
     if((player.lives<=0)||gameWin) {
         exit();
         endingTimer+=elapsed_frames;
@@ -78,9 +78,8 @@ void ofApp::update() {
         checkCollisions();
     }
     previousTime = ofGetElapsedTimef();
-/*
-	if (sendSerialMessage)
-	{
+
+	if (sendSerialMessage) {
 		serial.writeByte('x'); //Send something to the Arduino to wake it up
 		unsigned char bytesReturned[NUM_BYTES];
 
@@ -98,21 +97,69 @@ void ofApp::update() {
 		potentiometerMeanValue <<= 8;
 		potentiometerMeanValue += bytesReturned[1];
 
+
 		//Read info from the button
 		buttonValue = bytesReturned[2];
 		buttonValue <<= 8;
 		buttonValue += bytesReturned[3];
 
+        //Read info from the light sensor
+		luminosityMeanValue = bytesReturned[4];
+		luminosityMeanValue <<= 8;
+		luminosityMeanValue += bytesReturned[5];
+
 		sendSerialMessage = false;
+
+        // FIXMME: This hits performance...
+
+        //Potentiometer check
+        if(potentiometerMeanValue <= 256 and potentiometerMeanValue >= 10)
+        {
+            player.switchToLane(0);
+
+        }
+
+        else if(potentiometerMeanValue <= 512 and potentiometerMeanValue >= 257)
+        {
+            player.switchToLane(1);
+        }
+
+
+        else if(potentiometerMeanValue <= 768 and potentiometerMeanValue >= 513)
+        {
+            player.switchToLane(2);
+        }
+
+        else if(potentiometerMeanValue <= 1020 and potentiometerMeanValue >= 769)
+        {
+            player.switchToLane(3);
+        }
+
+        if (luminosityMeanValue < 512) {
+            playerImage.loadImage("nightcar.png");
+        } else {
+            playerImage.loadImage("racecar.png");
+
+        }
+
+		if(buttonValue) {
+            player.napalm = true;
+        } else {
+            player.napalm = false;
+        }
+
+
+
 	}
 	// wait a 5 cycles before asking again since OF go faster than serial
 	countCycles++;
+//	cout<<potentiometerMeanValue<<endl;
 	if (countCycles == 5)
 	{
 		sendSerialMessage = true;
 		countCycles = 0;
 	}
-*/
+
 }
 
 void ofApp::updateMap() {
@@ -130,6 +177,7 @@ void ofApp::updateMap() {
         }
         else it++;
     }
+
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
         if(player.napalm == true) {
             if(it->lane == player.lane) it = onScreenObstacles.erase(it);
@@ -178,6 +226,7 @@ void ofApp::draw() {
     if(gameWin) {
         mainMenu.drawVictory();
     }
+
     else if(player.lives<=0) mainMenu.drawDefeat();
 
     // Game loop
@@ -186,28 +235,6 @@ void ofApp::draw() {
         player.draw();
         if(isExpl) drawExplosions();
     }
-/*
-    //original example
-    int iRadius = 1;
-	char tempStr[1024];
-
-	float fRand = 0;
-	for (int i = 0; i<ofGetWidth() + 1; i++)
-	{
-		//If the button is pressed we randomize color and make points bigger
-		if (buttonValue)
-		{
-			iRadius = 5;
-			ofSetColor(ofRandom(0, 255), ofRandom(0, 255), ofRandom(0, 255));
-		}
-
-		// We increase a variable depending on how open is the potentiometer, thus
-		// each circle drawn more to the right will have a higher probability of
-		// being away from the vertical center of the screen
-		ofCircle(i, ((ofGetHeight() / 2) + ofRandom(-fRand, fRand)), iRadius);
-		fRand += ofMap(potentiometerMeanValue, 0, 1023, 0, 0.2);
-	}
-*/
 }
 
 void ofApp::drawMap() {
@@ -290,8 +317,8 @@ void ofApp::keyPressed(int key) {
         player.is_left_pressed = true;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = true;
-    if(key==OF_KEY_UP)
-        player.is_up_pressed = true;
+   /* if(key==OF_KEY_UP)
+        player.is_up_pressed = true;*/
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("nightcar.png");
 }
@@ -301,8 +328,6 @@ void ofApp::keyReleased(int key) {
         player.is_left_pressed = false;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = false;
-    if(key==OF_KEY_UP)
-        player.is_up_pressed = false;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("racecar.png");
     if(key==' ')
