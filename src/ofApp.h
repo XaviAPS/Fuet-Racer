@@ -4,7 +4,7 @@
 #include "MainMenu.hpp"
 #include "Player.hpp"
 
-#define NUM_BYTES 4 // Bytes to read
+#define NUM_BYTES 8 // Bytes to read
 #define NUM_OBSTACLES 150
 
 struct obstacle {
@@ -67,11 +67,12 @@ class ofApp : public ofBaseApp {
 
         vector<struct::obstacle>    obstacles, onScreenObstacles;
 	    float               speed, initialSpeed, endingTimer;
-        int                 buttonValue, potentiometerMeanValue;
-        bool                sendSerialMessage, gameWin;
-        int                 countCycles;
-        ofSerial            serial;
-        double              previousTime, elapsed_frames;
+		  int                 buttonValue, luminosityMeanValue, potentiometerMeanValue;
+		  bool                sendSerialMessage, gameWin;
+		  int                 countCycles;
+		  ofSerial            serial;
+      double              previousTime;
+      double              elapsed_frames;
 
         // Explosion
         vector<ofImage>     explosionFrames;

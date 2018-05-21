@@ -13,6 +13,7 @@ void Player::setup(ofImage * _img)
     startingMissiles = 3;
     missiles = 3;
     lane  = 2; // 0 to 3
+
     for(int i=1; i<5; i++) {
         ofPoint lanePoint;
         lanePoint.x = ofGetWidth()*0.2*i;
@@ -20,6 +21,7 @@ void Player::setup(ofImage * _img)
         lanePoint.z = 0;
         lanePositions.push_back(lanePoint);
     }
+
     pos.x = lanePositions[lane].x;
     pos.y = lanePositions[lane].y;
     pos.z = 0;
@@ -32,41 +34,45 @@ void Player::reset() {
     lane  = 2;
 }
 
-void Player::update(double elapsed_frames)
-{
+void Player::switchToLane(int input_lane) {
+    lane = input_lane;
+    pos.x = lanePositions[lane].x;
+}
+
+void Player::update(double elapsed_frames) {
     // Position controllers
     waitTime-=elapsed_frames;
+    bool arduino_is_connected = true;
     if(waitTime<0) {
-        if (is_left_pressed) {
+
+        if(not arduino_is_connected) {
+            if (is_left_pressed) {
             if(lane!=0) lane-=1;
-            //else lives-=1;
-            pos.x = lanePositions[lane].x;
+            switchToLane(lane);
             waitTime = 0.2;
         }
-        if (is_right_pressed) {
-            if(lane!=3) lane+=1;
-            //else lives-=1;
-            pos.x = lanePositions[lane].x;
-            waitTime = 0.2;
-        }
-        if (is_up_pressed) {
-            if(missiles>=1) {
-                napalm = true;
-                missiles--;
+            if (is_right_pressed) {
+                if(lane!=3) lane+=1;
+                switchToLane(lane);
+                waitTime = 0.2;
             }
-            waitTime = 0.2;
+            if (is_up_pressed) {
+                if(missiles>=1) {
+                    napalm = true;
+                    missiles--;
+                }
+                waitTime = 0.2;
+            }
         }
     }
 }
 
-void Player::draw()
-{
+void Player::draw() {
     ofSetColor(255);
     img->draw(pos.x - width/2, pos.y - height/2, width, height);
 }
 
-void Player::windowResized(int w, int h)
-{
+void Player::windowResized(int w, int h) {
     // We need these to adapt car size and position
     // to screen-size changes
     lanePositions.clear();

@@ -11,6 +11,7 @@ class Player {
         void draw();
         void windowResized(int w, int h);
         void reset();
+        void switchToLane(int lane);
 
         vector<ofPoint> lanePositions;
         ofPoint pos;

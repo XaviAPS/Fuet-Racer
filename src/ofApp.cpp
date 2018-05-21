@@ -12,7 +12,7 @@ void ofApp::setup() {
 
 	sendSerialMessage = false;  // Variable to control the interval at which you read information from the Arduino
 	serial.enumerateDevices();  // print all the devices
-	serial.setup("COM5", 9600); //open the device at this address
+	serial.setup("COM4", 9600); //open the device at this address
 
 	countCycles = 0;
 
@@ -67,7 +67,7 @@ void ofApp::setupMap() {
 void ofApp::update() {
     double currentTime = ofGetElapsedTimef();
     elapsed_frames = currentTime - previousTime;
-    //cout<<elapsed_frames<<endl;
+
     if((player.lives<=0)||gameWin) {
         exit();
         endingTimer+=elapsed_frames;
@@ -78,6 +78,87 @@ void ofApp::update() {
         checkCollisions();
     }
     previousTime = ofGetElapsedTimef();
+
+	if (sendSerialMessage) {
+		serial.writeByte('x'); //Send something to the Arduino to wake it up
+		unsigned char bytesReturned[NUM_BYTES];
+
+		memset(bytesReturned, 0, NUM_BYTES);//Set 0 for NUM_BYTES in bytesReturned
+
+		while (serial.readBytes(bytesReturned, NUM_BYTES) > 0) { //While there's in receiving
+		}
+
+		// Here is where we should pay attention! We know that from Android's skecth we are sending
+		// always 4 bytes, two for the potentiometer and two for the button, always sending first the
+		// higher value bits of the 16 bits integers
+
+		//Read info from the potentiometer
+		potentiometerMeanValue = bytesReturned[0];
+		potentiometerMeanValue <<= 8;
+		potentiometerMeanValue += bytesReturned[1];
+
+
+		//Read info from the button
+		buttonValue = bytesReturned[2];
+		buttonValue <<= 8;
+		buttonValue += bytesReturned[3];
+
+        //Read info from the light sensor
+		luminosityMeanValue = bytesReturned[4];
+		luminosityMeanValue <<= 8;
+		luminosityMeanValue += bytesReturned[5];
+
+		sendSerialMessage = false;
+
+        // FIXMME: This hits performance...
+
+        //Potentiometer check
+        if(potentiometerMeanValue <= 256 and potentiometerMeanValue >= 10)
+        {
+            player.switchToLane(0);
+
+        }
+
+        else if(potentiometerMeanValue <= 512 and potentiometerMeanValue >= 257)
+        {
+            player.switchToLane(1);
+        }
+
+
+        else if(potentiometerMeanValue <= 768 and potentiometerMeanValue >= 513)
+        {
+            player.switchToLane(2);
+        }
+
+        else if(potentiometerMeanValue <= 1020 and potentiometerMeanValue >= 769)
+        {
+            player.switchToLane(3);
+        }
+
+        if (luminosityMeanValue < 512) {
+            playerImage.loadImage("nightcar.png");
+        } else {
+            playerImage.loadImage("racecar.png");
+
+        }
+
+		if(buttonValue) {
+            player.napalm = true;
+        } else {
+            player.napalm = false;
+        }
+
+
+
+	}
+	// wait a 5 cycles before asking again since OF go faster than serial
+	countCycles++;
+//	cout<<potentiometerMeanValue<<endl;
+	if (countCycles == 5)
+	{
+		sendSerialMessage = true;
+		countCycles = 0;
+	}
 }
 
 void ofApp::updateMap(double elapsed_frames) {
@@ -95,6 +176,7 @@ void ofApp::updateMap(double elapsed_frames) {
         }
         else it++;
     }
+
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
         if(player.napalm == true) {
             if(it->lane == player.lane) {
@@ -163,6 +245,7 @@ void ofApp::draw() {
     if(gameWin) {
         mainMenu.drawVictory();
     }
+
     else if(player.lives<=0) mainMenu.drawDefeat();
 
     // Game loop
@@ -252,8 +335,8 @@ void ofApp::keyPressed(int key) {
         player.is_left_pressed = true;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = true;
-    if(key==OF_KEY_UP)
-        player.is_up_pressed = true;
+   /* if(key==OF_KEY_UP)
+        player.is_up_pressed = true;*/
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("nightcar.png");
 }
@@ -263,8 +346,6 @@ void ofApp::keyReleased(int key) {
         player.is_left_pressed = false;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = false;
-    if(key==OF_KEY_UP)
-        player.is_up_pressed = false;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("racecar.png");
     if(key==' ')
