@@ -79,8 +79,7 @@ void ofApp::update() {
     }
     previousTime = ofGetElapsedTimef();
 
-	if (sendSerialMessage)
-	{
+	if (sendSerialMessage) {
 		serial.writeByte('x'); //Send something to the Arduino to wake it up
 		unsigned char bytesReturned[NUM_BYTES];
 
@@ -103,6 +102,11 @@ void ofApp::update() {
 		buttonValue = bytesReturned[2];
 		buttonValue <<= 8;
 		buttonValue += bytesReturned[3];
+
+        //Read info from the light sensor
+		luminosityMeanValue = bytesReturned[4];
+		luminosityMeanValue <<= 8;
+		luminosityMeanValue += bytesReturned[5];
 
 		sendSerialMessage = false;
 
@@ -131,8 +135,12 @@ void ofApp::update() {
             player.switchToLane(3);
         }
 
+        if (luminosityMeanValue < 512) {
+            playerImage.loadImage("nightcar.png");
+        } else {
+            playerImage.loadImage("racecar.png");
 
-
+        }
 
 		if(buttonValue) {
             player.napalm = true;
@@ -145,7 +153,7 @@ void ofApp::update() {
 	}
 	// wait a 5 cycles before asking again since OF go faster than serial
 	countCycles++;
-	cout<<potentiometerMeanValue<<endl;
+//	cout<<potentiometerMeanValue<<endl;
 	if (countCycles == 5)
 	{
 		sendSerialMessage = true;
