@@ -14,9 +14,9 @@ void ofApp::setup() {
 	serial.enumerateDevices();  // print all the devices
 	serial.setup("COM4", 9600); //open the device at this address
 
+    isArduino = serial.isInitialized();
 	countCycles = 0;
-
-    state = playing;
+    //state = playing;
     previousTime = ofGetElapsedTimef();
     initialSpeed = 180;
     speed = initialSpeed;
@@ -59,12 +59,15 @@ void ofApp::setupMap() {
         explosionFrames.push_back(ofImage());
         explosionFrames.back().loadImage(filePath);
     }
+
     explosionFPS = 12;
-    isFirstFrame = false;
-    isExpl = false;
 }
 
 void ofApp::update() {
+    if (state==menu) {
+        return;
+    }
+
     double currentTime = ofGetElapsedTimef();
     elapsed_frames = currentTime - previousTime;
 
@@ -74,86 +77,15 @@ void ofApp::update() {
         if(endingTimer>300) ofExit();
     } else {
         updateMap(elapsed_frames);
-        player.update(elapsed_frames);
+        if(isArduino) updateArduino(elapsed_frames);
+        else player.update(elapsed_frames);
         checkCollisions();
     }
+
     previousTime = ofGetElapsedTimef();
-
-	if (sendSerialMessage) {
-		serial.writeByte('x'); //Send something to the Arduino to wake it up
-		unsigned char bytesReturned[NUM_BYTES];
-
-		memset(bytesReturned, 0, NUM_BYTES);//Set 0 for NUM_BYTES in bytesReturned
-
-		while (serial.readBytes(bytesReturned, NUM_BYTES) > 0) { //While there's in receiving
-		}
-
-		// Here is where we should pay attention! We know that from Android's skecth we are sending
-		// always 4 bytes, two for the potentiometer and two for the button, always sending first the
-		// higher value bits of the 16 bits integers
-
-		//Read info from the potentiometer
-		potentiometerMeanValue = bytesReturned[0];
-		potentiometerMeanValue <<= 8;
-		potentiometerMeanValue += bytesReturned[1];
-
-
-		//Read info from the button
-		buttonValue = bytesReturned[2];
-		buttonValue <<= 8;
-		buttonValue += bytesReturned[3];
-
-        //Read info from the light sensor
-		luminosityMeanValue = bytesReturned[4];
-		luminosityMeanValue <<= 8;
-		luminosityMeanValue += bytesReturned[5];
-
-		sendSerialMessage = false;
-
-        // FIXMME: This hits performance...
-
-        //Potentiometer check
-        if(potentiometerMeanValue <= 256 and potentiometerMeanValue >= 10)
-        {
-            player.switchToLane(0);
-
-        }
-
-        else if(potentiometerMeanValue <= 512 and potentiometerMeanValue >= 257)
-        {
-            player.switchToLane(1);
-        }
-
-
-        else if(potentiometerMeanValue <= 768 and potentiometerMeanValue >= 513)
-        {
-            player.switchToLane(2);
-        }
-
-        else if(potentiometerMeanValue <= 1020 and potentiometerMeanValue >= 769)
-        {
-            player.switchToLane(3);
-        }
-
-        if (luminosityMeanValue < 512) {
-            playerImage.loadImage("nightcar.png");
-        } else {
-            playerImage.loadImage("racecar.png");
-
-        }
-
-		if(buttonValue) {
-            player.napalm = true;
-        } else {
-            player.napalm = false;
-        }
-
-
-
-	}
 	// wait a 5 cycles before asking again since OF go faster than serial
-	countCycles++;
-//	cout<<potentiometerMeanValue<<endl;
+    countCycles++;
+    //	cout<<potentiometerMeanValue<<endl;
 	if (countCycles == 5)
 	{
 		sendSerialMessage = true;
@@ -202,7 +134,7 @@ void ofApp::updateMap(double elapsed_frames) {
         }
     }
     player.napalm = false;
-    
+
     // delete explosions after they spent their animation timer
     vector<struct::explosion>::iterator ip;
     for(ip = explodingPoints.begin(); ip != explodingPoints.end(); ) {
@@ -212,6 +144,54 @@ void ofApp::updateMap(double elapsed_frames) {
     if(obstacles.size()==0) {
         if(onScreenObstacles.size()==0) gameWin = true;
     }
+}
+
+void ofApp::updateArduino(double elapsed_frames) {
+
+    player.waitTime -= elapsed_frames;
+    if (sendSerialMessage) {
+		serial.writeByte('x'); //Send something to the Arduino to wake it up
+		unsigned char bytesReturned[NUM_BYTES];
+		memset(bytesReturned, 0, NUM_BYTES);//Set 0 for NUM_BYTES in bytesReturned
+		while (serial.readBytes(bytesReturned, NUM_BYTES) > 0) {}//While there's in receiving
+
+		//Read info from the potentiometer
+		potentiometerMeanValue = bytesReturned[0];
+		potentiometerMeanValue <<= 8;
+		potentiometerMeanValue += bytesReturned[1];
+
+		//Read info from the button
+		buttonValue = bytesReturned[2];
+		buttonValue <<= 8;
+		buttonValue += bytesReturned[3];
+
+        //Read info from the light sensor
+		luminosityMeanValue = bytesReturned[4];
+		luminosityMeanValue <<= 8;
+		luminosityMeanValue += bytesReturned[5];
+
+		sendSerialMessage = false;
+
+        // FIXMME: This hits performance...
+        //Potentiometer check
+        cout<<potentiometerMeanValue<<endl;
+        if(potentiometerMeanValue <= 256 and potentiometerMeanValue >= 10) player.switchToLane(0);
+        else if(potentiometerMeanValue <= 512 and potentiometerMeanValue >= 257) player.switchToLane(1);
+        else if(potentiometerMeanValue <= 768 and potentiometerMeanValue >= 513) player.switchToLane(2);
+        else if(potentiometerMeanValue <= 1020 and potentiometerMeanValue >= 769) player.switchToLane(3);
+
+        if (luminosityMeanValue < 512) playerImage.loadImage("nightcar.png");
+        else playerImage.loadImage("racecar.png");
+
+		if(buttonValue && (player.waitTime<0)) {
+            if(player.missiles>=1) {
+                player.napalm = true;
+                player.missiles--;
+                player.waitTime=0.2;
+            }
+		}
+	}
+
 }
 
 void ofApp::checkCollisions() {
@@ -240,12 +220,8 @@ void ofApp::draw() {
         mainMenu.drawMenu();
         return;
     }
-
     // End game conditions
-    if(gameWin) {
-        mainMenu.drawVictory();
-    }
-
+    if(gameWin) mainMenu.drawVictory();
     else if(player.lives<=0) mainMenu.drawDefeat();
 
     // Game loop
@@ -335,8 +311,8 @@ void ofApp::keyPressed(int key) {
         player.is_left_pressed = true;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = true;
-   /* if(key==OF_KEY_UP)
-        player.is_up_pressed = true;*/
+   if(key==OF_KEY_UP)
+        player.is_up_pressed = true;
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("nightcar.png");
 }
@@ -346,6 +322,10 @@ void ofApp::keyReleased(int key) {
         player.is_left_pressed = false;
     if(key==OF_KEY_RIGHT)
         player.is_right_pressed = false;
+    if(key==OF_KEY_UP) {
+        player.is_up_pressed = false;
+        player.missiles--;
+    }
     if(key==OF_KEY_RETURN)
         playerImage.loadImage("racecar.png");
     if(key==' ')

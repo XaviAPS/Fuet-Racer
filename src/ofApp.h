@@ -40,7 +40,8 @@ class ofApp : public ofBaseApp {
 
         // Update Components
 		void updateMap(double elapsed_frames);
-		void checkCollisions();
+        void updateArduino(double elapsed_frames);
+        void checkCollisions();
 		void explosion(float w, float h);
 
         // Draw Components
@@ -67,12 +68,11 @@ class ofApp : public ofBaseApp {
 
         vector<struct::obstacle>    obstacles, onScreenObstacles;
 	    float               speed, initialSpeed, endingTimer;
-		  int                 buttonValue, luminosityMeanValue, potentiometerMeanValue;
-		  bool                sendSerialMessage, gameWin;
-		  int                 countCycles;
-		  ofSerial            serial;
-      double              previousTime;
-      double              elapsed_frames;
+        int                 buttonValue, luminosityMeanValue, potentiometerMeanValue;
+        bool                sendSerialMessage, gameWin, isArduino;
+        int                 countCycles;
+        ofSerial            serial;
+        double              previousTime, elapsed_frames;
 
         // Explosion
         vector<ofImage>     explosionFrames;

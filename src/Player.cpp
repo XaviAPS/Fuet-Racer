@@ -42,27 +42,26 @@ void Player::switchToLane(int input_lane) {
 void Player::update(double elapsed_frames) {
     // Position controllers
     waitTime-=elapsed_frames;
-    bool arduino_is_connected = true;
-    if(waitTime<0) {
-
-        if(not arduino_is_connected) {
-            if (is_left_pressed) {
+    if (is_left_pressed) {
+        if(waitTime<0) {
             if(lane!=0) lane-=1;
             switchToLane(lane);
             waitTime = 0.2;
         }
-            if (is_right_pressed) {
-                if(lane!=3) lane+=1;
-                switchToLane(lane);
-                waitTime = 0.2;
+    }
+    if (is_right_pressed) {
+        if(waitTime<0) {
+            if(lane!=3) lane+=1;
+            switchToLane(lane);
+            waitTime = 0.2;
+        }
+    }
+    if (is_up_pressed) {
+        if(waitTime<0) {
+            if(missiles>=1) {
+                napalm = true;
             }
-            if (is_up_pressed) {
-                if(missiles>=1) {
-                    napalm = true;
-                    missiles--;
-                }
-                waitTime = 0.2;
-            }
+            waitTime = 0.2;
         }
     }
 }
