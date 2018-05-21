@@ -16,15 +16,15 @@ void ofApp::setup() {
 
 	countCycles = 0;
 
-  state = playing;
-  previousTime = ofGetElapsedTimef();
-  initialSpeed = 180;
-  speed = initialSpeed;
+    state = playing;
+    previousTime = ofGetElapsedTimef();
+    initialSpeed = 180;
+    speed = initialSpeed;
 
-  gameWin = false;
-  setupPlayer();
-  setupMainMenu();
-  setupMap();
+    gameWin = false;
+    setupPlayer();
+    setupMainMenu();
+    setupMap();
 }
 
 void ofApp::setupMainMenu() {
@@ -43,7 +43,7 @@ void ofApp::setupMap() {
     float currentHeight = -300;
     float minDistance = player.height + (ofGetHeight()* 0.1);
     for(int i=0; i<NUM_OBSTACLES; i++) {
-        obstacle obst;
+        struct::obstacle obst;
         obst.height = currentHeight;
         obst.lane = (rand()%4);
         obst.isPerson = false;
@@ -73,7 +73,7 @@ void ofApp::update() {
         endingTimer+=elapsed_frames;
         if(endingTimer>300) ofExit();
     } else {
-        updateMap();
+        updateMap(elapsed_frames);
         player.update(elapsed_frames);
         checkCollisions();
     }
@@ -159,16 +159,15 @@ void ofApp::update() {
 		sendSerialMessage = true;
 		countCycles = 0;
 	}
-
 }
 
-void ofApp::updateMap() {
+void ofApp::updateMap(double elapsed_frames) {
     int i,j=0;
-    vector<obstacle>::iterator it;
+    vector<struct::obstacle>::iterator it;
     for(it = obstacles.begin(); it != obstacles.end(); ) {
         it->height+=(elapsed_frames*speed);
         if(it->height+(ofGetHeight()*0.06)>0) {
-            obstacle aux;
+            struct::obstacle aux;
             aux.height = it->height;
             aux.lane = it->lane;
             aux.isPerson = it->isPerson;
@@ -180,7 +179,16 @@ void ofApp::updateMap() {
 
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
         if(player.napalm == true) {
-            if(it->lane == player.lane) it = onScreenObstacles.erase(it);
+            if(it->lane == player.lane) {
+                struct::explosion auxPoint;
+                auxPoint.width = player.pos.x;
+                auxPoint.height = it->height;
+                auxPoint.fps = explosionFPS;
+                auxPoint.isFirstFrame = true;
+                auxPoint.endAnimation = false;
+                explodingPoints.push_back(auxPoint);
+                it = onScreenObstacles.erase(it);
+            }
             else it++;
         }
         else if(it->height>ofGetHeight()) {
@@ -193,24 +201,35 @@ void ofApp::updateMap() {
             it++;
         }
     }
+    player.napalm = false;
+    
+    // delete explosions after they spent their animation timer
+    vector<struct::explosion>::iterator ip;
+    for(ip = explodingPoints.begin(); ip != explodingPoints.end(); ) {
+        if(ip->endAnimation) ip = explodingPoints.erase(ip);
+        else ip++;
+    }
     if(obstacles.size()==0) {
         if(onScreenObstacles.size()==0) gameWin = true;
     }
-    player.napalm = false;
 }
 
 void ofApp::checkCollisions() {
     float playerTop = player.pos.y - player.height/2;
     float playerBot = player.pos.y + player.height/2;
-    vector<obstacle>::iterator it;
+    vector<struct::obstacle>::iterator it;
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); ) {
         if(it->lane==player.lane) {
             if(it->height > playerTop && it->height < playerBot) {
+                struct::explosion auxPoint;
                 it = onScreenObstacles.erase(it);
                 player.lives--;
-                explodingPoint.x = player.pos.x;
-                explodingPoint.y = player.pos.y;
-                isExpl = true;
+                auxPoint.width = player.pos.x;
+                auxPoint.height = player.pos.y;
+                auxPoint.fps = explosionFPS;
+                auxPoint.isFirstFrame = true;
+                auxPoint.endAnimation = false;
+                explodingPoints.push_back(auxPoint);
             } else it++;
         } else it++;
     }
@@ -233,7 +252,10 @@ void ofApp::draw() {
     else {
         drawMap();
         player.draw();
-        if(isExpl) drawExplosions();
+        vector<struct::explosion>::iterator it;
+        for(it = explodingPoints.begin(); it != explodingPoints.end(); it++) {
+            drawExplosions(&(*it));
+        }
     }
 }
 
@@ -258,7 +280,7 @@ void ofApp::drawMap() {
     //we draw obstacles
     float speedRate = ((speed - initialSpeed)/initialSpeed)*0.5;
     float offsetWidth;
-    vector<obstacle>::iterator it;
+    vector<struct::obstacle>::iterator it;
     for(it = onScreenObstacles.begin(); it != onScreenObstacles.end(); it++) {
         if(it->isPerson) ofSetColor(155);
         else ofSetColor(speedRate*255,abs(127-(speedRate*255)),255-(speedRate*(255/2)));
@@ -282,7 +304,7 @@ void ofApp::drawMap() {
     }
 
     // we draw missiles
-     ofSetColor(233,100,0);
+    ofSetColor(233,100,0);
     for(int i=0; i<player.missiles; i++) {
         ofCircle(iWidth*0.95, (iHeight*0.05)+(iHeight*i*0.04), 9.5);
     }
@@ -292,24 +314,20 @@ void ofApp::drawMap() {
     }
 }
 
-void ofApp::drawExplosions() {
+void ofApp::drawExplosions(struct::explosion *o) {
     int frameIndex = (int)(ofGetElapsedTimef() * explosionFPS) % explosionFrames.size();
-    if(isFirstFrame) {
-            offset = 9 - frameIndex;
-            isFirstFrame = false;
+    if(o->isFirstFrame) {
+        o->offset = 9 - frameIndex;
+        o->isFirstFrame = false;
+        //cout<<"in "<<o->offset<<" "<<frameIndex<<endl;
     }
-    frameIndex = (frameIndex + offset) % explosionFrames.size();
-    //if(frameIndex==0) cout<<"in-";
-    //cout<<frameIndex<<endl;
+    frameIndex = (frameIndex + o->offset) % explosionFrames.size();
+    cout<<frameIndex<<endl;
     int width = ofGetWidth()*172/1024;
     int height= ofGetHeight()*172/768;
     ofSetColor(255);
-    explosionFrames[frameIndex].draw(explodingPoint.x-width/2,explodingPoint.y-height/2,width,height);
-    if(frameIndex==8) {
-        isExpl = false;
-        isFirstFrame = true;
-        //cout<<"-out"<<endl;
-    }
+    explosionFrames[frameIndex].draw(o->width-width/2,o->height-height/2,width,height);
+    if(frameIndex==8) o->endAnimation = true;
 }
 
 void ofApp::keyPressed(int key) {
