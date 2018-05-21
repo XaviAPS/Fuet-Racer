@@ -13,11 +13,20 @@ struct obstacle {
     bool isPerson;
 };
 
+struct explosion {
+    float width;
+    float height;
+    float fps;
+    bool isFirstFrame;
+    bool endAnimation;
+    int offset;
+};
+
 enum gameState {
     menu, playing, paused
 };
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp {
 
 	public:
 		void setup();
@@ -30,13 +39,13 @@ class ofApp : public ofBaseApp{
         void setupMainMenu();
 
         // Update Components
-		void updateMap();
+		void updateMap(double elapsed_frames);
 		void checkCollisions();
 		void explosion(float w, float h);
 
         // Draw Components
         void drawMap();
-        void drawExplosions();
+        void drawExplosions(struct::explosion *o);
 
         // Ending related
         void drawVictory();
@@ -54,21 +63,19 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 	private:
-      gameState          state;
+        gameState          state;
 
-	    vector<obstacle>    obstacles, onScreenObstacles;
+        vector<struct::obstacle>    obstacles, onScreenObstacles;
 	    float               speed, initialSpeed, endingTimer;
-		  int                 buttonValue, potentiometerMeanValue;
-		  bool                sendSerialMessage, gameWin;
-		  int                 countCycles;
-		  ofSerial            serial;
-      double             previousTime;
-      double              elapsed_frames;
+        int                 buttonValue, potentiometerMeanValue;
+        bool                sendSerialMessage, gameWin;
+        int                 countCycles;
+        ofSerial            serial;
+        double              previousTime, elapsed_frames;
 
         // Explosion
         vector<ofImage>     explosionFrames;
-        ofPoint             explodingPoint;
-        int                 offset;
+        vector<struct::explosion>   explodingPoints;
         float               explosionFPS;
         bool                isExpl, isFirstFrame;
 
@@ -76,6 +83,4 @@ class ofApp : public ofBaseApp{
         ofImage             playerImage;
         MainMenu            mainMenu;
         ofImage             backgroundImage;
-
-
 };
